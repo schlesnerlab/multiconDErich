@@ -1,4 +1,4 @@
-# Multicondition-deseq2-enrichment
+# multiconDErich
 
 [![Tests](https://github.com/schlesnerlab/multicondition-deseq2-enrichment/actions/workflows/main.yaml/badge.svg)](https://github.com/schlesnerlab/multicondition-deseq2-enrichment/actions/workflows/main.yaml)
 
