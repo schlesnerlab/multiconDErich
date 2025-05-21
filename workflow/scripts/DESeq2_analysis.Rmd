@@ -90,7 +90,7 @@ if (exists("snakemake")) {
     glue::glue("results/diffexp/{cond_id}/{comp_id}.diffexp.tsv")
   )
   fpkm_path <- file.path(base_analysis_dir, "fpkm/all.tsv")
-  samp_map <- file.path("../..",conf$samples)
+  samp_map <- file.path("../..", conf$samples)
   rld_path <- file.path(
     paste0(base_analysis_dir),
     "deseq2/rlog_transform.RDS.gz"
@@ -409,7 +409,7 @@ We also use an over representation test on the MsigDB pathway database as a comp
 ```{r go enrichment}
 genereate_gsea_plots <- function(gsea_obj, gsea_name) {
   cat("\n")
-  cat("### ", gsea_name , " \n")
+  cat("### ", gsea_name, " \n")
   cat("\n")
 
 
@@ -511,7 +511,7 @@ org_db <- get_org_db(organism)
 
 do_gseaplots <- function(enrich_res, gsea_name) {
   cat("\n")
-  cat("### ", gsea_name , " \n")
+  cat("### ", gsea_name, " \n")
   cat("\n")
 
   id_class <- conf[["gsea"]][[gsea_name]][["id_class"]]
@@ -522,7 +522,7 @@ do_gseaplots <- function(enrich_res, gsea_name) {
       z <- enrichplot::upsetplot(enrich_res)
       all_plots$upset <- z
       if (conf[["gsea"]][[gsea_name]][["use_gsea"]]) {
-        enrich_plots <- RNAscripts::plot_enrichment(enrich_res, 
+        enrich_plots <- RNAscripts::plot_enrichment(enrich_res,
           X = "ID", Y = "NES",
           pval = "p.adjust"
         )
@@ -535,16 +535,18 @@ do_gseaplots <- function(enrich_res, gsea_name) {
         all_plots$enrichplots <- enrich_plots
 
         dplot <- better_dotplot(enrich_res, c_groups = contrast_groups)
-        x<- purrr::map(dplot, print)
-        purrr::map2(dplot, contrast_groups, save_dotplots, gsea_type = gsea_name )
-        all_plots$dotplots <- dplot      
+        x <- purrr::map(dplot, print)
+        purrr::map2(dplot, contrast_groups, save_dotplots,
+                    gsea_type = gsea_name)
+        all_plots$dotplots <- dplot
         cnetplot <- cnetplot(enrich_res,
-                                foldChange = set_names(joined_df$logFoldChange, gene_list$gname),
-                                node_label = "all",
-                                layout = "nicely",
-                                cex_label_category = 0.8,
-                                cex_label_gene = 0.6
-                                )
+                             foldChange = set_names(joined_df$logFoldChange,
+                                                       gene_list$gname),
+                             node_label = "all",
+                             layout = "nicely",
+                             cex_label_category = 0.8,
+                             cex_label_gene = 0.6
+                             )
         print(cnetplot)
         
         ggsave(
