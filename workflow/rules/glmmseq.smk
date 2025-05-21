@@ -27,9 +27,7 @@ rule plot_PCA:
         batch_corrected_counts=join(
             BASE_ANALYSIS_DIR, "counts/batch_corrected_counts.rds"
         ),
-        uncorrected_counts=join(
-            BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"
-        )
+        uncorrected_counts=join(BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"),
     output:
         html_file=join(BASE_ANALYSIS_DIR, "glmmseq/pca.html"),
     conda:
@@ -42,11 +40,11 @@ rule plot_PCA:
     threads: 1
     script:
         "../scripts/glmmseq/plot_PCA.Rmd"
+
+
 rule run_glmmseq:
     input:
-        uncorrected_counts=join(
-            BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"
-        ),
+        uncorrected_counts=join(BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"),
     output:
         glmmseq_obj=join(BASE_ANALYSIS_DIR, "glmmseq/glmmseq_obj.rds.gz"),
         glmmseq_refit=join(BASE_ANALYSIS_DIR, "glmmseq/glmmseq_refit.rds.gz"),
