@@ -548,7 +548,7 @@ do_gseaplots <- function(enrich_res, gsea_name) {
                              cex_label_gene = 0.6
                              )
         print(cnetplot)
-        
+
         ggsave(
           filename = file.path(plot_path, paste0(
             contrast_groups[1],
@@ -560,7 +560,7 @@ do_gseaplots <- function(enrich_res, gsea_name) {
         all_plots <- cnetplot
       } else {
         enrich_plots <- NULL
-        all_plots$dotplots <- dotplot(msig_enrichment) 
+        all_plots$dotplots <- dotplot(msig_enrichment)
         print(dotplot)
       }
     } else {
@@ -573,8 +573,6 @@ do_gseaplots <- function(enrich_res, gsea_name) {
 
 
 all_plots <- purrr::map2(enrich_list, names(enrich_list), do_gseaplots)
-
-
 ```
   
 

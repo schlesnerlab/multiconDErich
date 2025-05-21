@@ -30,7 +30,6 @@ library(readr)
 library(ComplexHeatmap)
 library(DESeq2)
 library(purrr)
-#library(tidyverse)
 if (exists("snakemake")) {
   write(str(snakemake), file = stderr())
   dds_path <- snakemake@input[["dds_obj"]]
@@ -46,16 +45,16 @@ if (exists("snakemake")) {
   organism <- snakemake@config[["organism"]]
 } else {
   the_yaml <- yaml::read_yaml("../../../configs/tec_age_young.yaml")
-  snakedir <- "/Users/heyechri/Documents/software/heyer/multicondition-deseq2-enrichment"
-  #BASE_ANALYSIS_DIR <- file.path(snakedir, "data/STAD")
-  BASE_ANALYSIS_DIR <- the_yaml$dirs$BASE_ANALYSIS_DIR
+  snakedir <- ""
+  base_analysis_dir <- the_yaml$dirs$BASE_ANALYSIS_DIR
   dds_path <- file.path(paste0(BASE_ANALYSIS_DIR), "deseq2/all.rds")
   cond_var <- names(the_yaml$diffexp$contrasts)[1]
   diffexp_tb_path <- file.path(
-    paste0(BASE_ANALYSIS_DIR),
-    glue::glue("results/diffexp/{cond_var}/{names(the_yaml$diffexp$contrasts[[cond_var]])[1]}.diffexp.tsv")
+    paste0(base_analysis_dir),
+    glue::glue("results/diffexp/{cond_var}/",
+               "{names(the_yaml$diffexp$contrasts[[cond_var]])[1]}.diffexp.tsv")
   )
-  fpkm_path <- file.path(BASE_ANALYSIS_DIR, "fpkm/all.tsv")
+  fpkm_path <- file.path(base_analysis_dir, "fpkm/all.tsv")
   contrast_groups <- the_yaml$diffexp$contrasts[[cond_var]][1]
   plot_path <- "."
   register(SerialParam())
