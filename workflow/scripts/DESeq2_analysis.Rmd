@@ -90,7 +90,7 @@ if (exists("snakemake")) {
     glue::glue("results/diffexp/{cond_id}/{comp_id}.diffexp.tsv")
   )
   fpkm_path <- file.path(base_analysis_dir, "fpkm/all.tsv")
-  samp_map <- file.path(conf$samples)
+  samp_map <- file.path("../..",conf$samples)
   rld_path <- file.path(
     paste0(base_analysis_dir),
     "deseq2/rlog_transform.RDS.gz"
