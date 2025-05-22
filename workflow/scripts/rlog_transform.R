@@ -14,7 +14,6 @@ saveRDS(rld, snakemake@output[["rld"]])
 norm_counts <- assay(rld, withDimnames = T) %>%
   tibble::as_tibble(rownames = "gene")
 og_gene_names <- norm_counts$gene
-norm_counts$gene <- stringr::str_extract(norm_counts$gene, pattern = "^ENS[A-Z0-9]*")
 # this variable holds a mirror name until useEnsembl succeeds ('www' is last, because of very frequent 'Internal Server
 # Error's)
 
@@ -55,10 +54,12 @@ stable_get_bm <- function(species) {
 }
 
 #mart <- stable_get_bm(species)
-mart <- biomaRt::useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", dataset = glue::glue("{species}_gene_ensembl"))
 # df <- read.table(snakemake@input']], sep='\t', header=1)
 gene_name_type <- snakemake@config[["gene_name_type"]]
 if (gene_name_type == "ENSEMBL") {
+
+  norm_counts$gene <- stringr::str_extract(norm_counts$gene, pattern = "^ENS[A-Z0-9]*")
+  mart <- biomaRt::useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", dataset = glue::glue("{species}_gene_ensembl"))
   g2g <- biomaRt::getBM(attributes = c("ensembl_gene_id", "external_gene_name"), 
   filters = "ensembl_gene_id", values = stringr::str_extract(norm_counts$gene,
     pattern = "^ENS[A-Z0-9]*"

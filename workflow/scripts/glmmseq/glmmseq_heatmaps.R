@@ -164,7 +164,8 @@ plot_heatmap<- function(coef,vst_obj = vst_dds, glmm_obj =  glmmseq_norm_counts,
       draw(hmap + genelabels + coef_values_anno,
       heatmap_legend_side = 'left',
       annotation_legend_side = 'right',
-      row_sub_title_side = 'left',annotation_legend_list = list(coef_legend))
+      row_sub_title_side = 'left')
+      #annotation_legend_list = list(coef_legend))
       dev.off()
     } else {
       png(png_file, width = 10, height = 10, units = 'in', res = 300)

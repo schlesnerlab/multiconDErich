@@ -22,11 +22,29 @@ rule batch_correct:
         "../scripts/glmmseq/batch_correct.R"
 
 
-rule run_glmmseq:
+rule plot_PCA:
     input:
         batch_corrected_counts=join(
             BASE_ANALYSIS_DIR, "counts/batch_corrected_counts.rds"
         ),
+        uncorrected_counts=join(BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"),
+    output:
+        html_file=join(BASE_ANALYSIS_DIR, "glmmseq/pca.html"),
+    conda:
+        "../envs/R_4.yaml"
+    log:
+        "logs/glmmseq/plot_PCA.log",
+    resources:
+        mem_mb=8192,
+        time_min=59,
+    threads: 1
+    script:
+        "../scripts/glmmseq/plot_PCA.Rmd"
+
+
+rule run_glmmseq:
+    input:
+        uncorrected_counts=join(BASE_ANALYSIS_DIR, "counts/uncorrected_counts.rds"),
     output:
         glmmseq_obj=join(BASE_ANALYSIS_DIR, "glmmseq/glmmseq_obj.rds.gz"),
         glmmseq_refit=join(BASE_ANALYSIS_DIR, "glmmseq/glmmseq_refit.rds.gz"),

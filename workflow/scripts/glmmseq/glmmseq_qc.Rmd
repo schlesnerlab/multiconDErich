@@ -155,21 +155,29 @@ ggplot(pvals_df, aes(sample = pvals)) +
 
 # Corrected function to create a QQ plot with appropriate axis labels in scientific notation
 create_qq_plot <- function(pvals, column_name, ylim) {
-  # Filter out non-finite and zero p-values
+  # Remove non-finite and zero p-values
   pvals <- pvals[is.finite(pvals) & pvals > 0]
   
-  # Create a data frame for the p-values
-  pvals_df <- data.frame(pvals = pvals)
+  # Sort p-values in ascending order
+  pvals <- sort(pvals)
+  n <- length(pvals)
+  
+  # Compute expected uniform quantiles
+  expected <- (1:n) / (n + 1)  # Avoid using 0 or 1 as expected quantiles
+  
+  # Create a data frame
+  pvals_df <- data.frame(
+    observed = pvals,
+    expected = expected
+  )
   
   # Create the QQ plot
-  plot <- ggplot(pvals_df, aes(sample = pvals)) +
-    geom_qq(distribution = qunif) +  # Use uniform distribution for the QQ plot
-  stat_qq_line(distribution = qunif) +  # Add the reference line for uniform distribution
- #   scale_y_continuous(labels = function(x) format(signif(10^(-x), digits = 2), scientific = TRUE)) +
-#    scale_x_continuous(labels = function(x) format(signif(10^(-x), digits = 2), scientific = TRUE)) +
-    labs(x = "Theoretical Quantiles", y = "Observed P-Values", title = column_name) +
+  plot <- ggplot(pvals_df, aes(x = expected, y = observed)) +
+    geom_point(color = "blue", size = 1.5, alpha = 0.7) +  # Scatter plot of observed vs expected
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +  # Reference line
+    labs(x = "Theoretical Quantiles (Uniform)", y = "Observed P-Values", title = column_name) +
     theme_minimal() +
-    coord_cartesian(ylim = c(0, ylim))  # Set the y-axis limits
+    coord_cartesian(ylim = c(0, ylim))  # Set y-axis limits
   
   return(plot)
 }

@@ -4,7 +4,7 @@ library(furrr)
 library(snow)
 # Insert snakemake boilerplate
 if(exists("snakemake")) {
-    batch_corrected_counts <- snakemake@input[["batch_corrected_counts"]]
+    uncorrected_counts <- snakemake@input[["uncorrected_counts"]]
     the_formula <- snakemake@params[["formula"]] |> as.formula()
     glmmseq_obj <- snakemake@output[["glmmseq_obj"]]
     glmmseq_refit <- snakemake@output[["glmmseq_refit"]]
@@ -17,7 +17,7 @@ if(exists("snakemake")) {
     batch_corrected_counts <-  "/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/glmmseq/counts/batch_corrected_counts.rds"
     
 }
-deseq_obj <- readRDS(batch_corrected_counts)
+deseq_obj <- readRDS(uncorrected_counts)
 #deseq_obj <- DESeq(deseq_obj)
 normalized_counts <- counts(deseq_obj, normalized = T)
 size_factors <- sizeFactors(deseq_obj)

@@ -14,8 +14,12 @@ library(progeny)
 library(DESeq2)
 library(BiocParallel)
 library(readr)
+library(dplyr)
 library(magrittr)
+library(forcats)
+library(tibble)
 library(tidyverse)
+library(tidyr)
 library(RColorBrewer)
 library(ggplot2)
 library(decoupleR)
@@ -97,7 +101,7 @@ rownames(Normalized_counts) <- filer$gname
 joined_df %>%
   dplyr::select(gname, stat) %>%
   dplyr::filter(!is.na(stat)) %>%
-  column_to_rownames(var = "gname") %>%
+  tibble::column_to_rownames(var = "gname") %>%
   as.matrix() -> diffexp_matrix
 write("finished parsing", file = stderr())
 ```
@@ -116,7 +120,7 @@ prog_net <- decoupleR::get_progeny(organism = org_name, top = 500) %>% dplyr::fi
 PathwayActivity_counts <- decoupleR::run_mlm(Normalized_counts,network = prog_net, .mor = "weight", center = T) %>%
   dplyr::mutate(padj = p.adjust(p_value, method = "BH")) %>% #dplyr::filter(p_value < 0.05) %>%
   dplyr::mutate(score = ifelse(p_value < 0.05, score, 0  )) %>%
-   pivot_wider( 
+   tidyr::pivot_wider( 
     id_cols = "condition", names_from = "source",
     values_from = "score"
   ) %>%
@@ -134,7 +138,7 @@ Activity_counts <- as.vector(PathwayActivity_counts)
 ann_col <- colData(dds_obj) %>%
   as_tibble() %>%
   pull(!!sym(cond_id)) %>%
-  fct_relevel(names(color_scheme))
+  forcats::fct_relevel(names(color_scheme))
 if (!is.null(color_scheme)) {
   top_anno <- ComplexHeatmap::HeatmapAnnotation(
     sample = ann_col,
@@ -172,7 +176,7 @@ from one or from multiple distributions.
 
 
 ```{r}
-plot_activity <- as_tibble(PathwayActivity_counts) %>% add_column(condition = fct_relevel(ann_col, s_groups))
+plot_activity <- as_tibble(PathwayActivity_counts) %>% tibble::add_column(condition = fct_relevel(ann_col, s_groups))
 
 for (pathway in kruskal_test$pathway) {
   pval <- kruskal_test %>%
@@ -218,15 +222,21 @@ PathwayActivity_zscore_df <- PathwayActivity_zscore
 NES_plot <- ggplot(PathwayActivity_zscore_df, aes(x = reorder(source, score), y = score)) +
   geom_bar(aes(fill = score), stat = "identity") +
   scale_fill_gradient2(
-    low = "darkblue", high = "indianred",
-    mid = "whitesmoke", midpoint = 0
+    low = "darkblue",
+    high = "indianred",
+    mid = "whitesmoke",
+    midpoint = 0
   ) +
   theme_minimal() +
   theme(
     axis.title = element_text(face = "bold", size = 12),
-    axis.text.x =
-      element_text(angle = 45, hjust = 1, size = 10, face = "bold"),
-    axis.text.y = element_text(size = 10, face = "bold"),
+    axis.text.x = ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      size = 13,
+      face = "bold"
+    ),
+    axis.text.y = ggplot2::element_text(size = 13, face = "bold"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   ) +
@@ -247,6 +257,7 @@ ttop_KOvsWT_df <- diffexp_matrix %>%
  # tibble::rownames_to_column("GeneID")
 
 plot_pathway <- function(pathway, deg, net) {
+  colors <- rev(RColorBrewer::brewer.pal(n = 11, name = "RdBu")[c(2, 10)])
   df <- net %>%
     filter(source == pathway) %>%
     arrange(target) %>%
@@ -263,10 +274,14 @@ plot_pathway <- function(pathway, deg, net) {
     mutate(color = if_else(weight < 0 & stat < 0, '1', color))
 
   ggplot(df, aes(x = weight, y = stat, color = color)) + geom_point() +
-    scale_colour_manual(values = c("red","royalblue3","grey")) +
-    ggrepel::geom_label_repel(aes(label = ID)) + 
-    theme_minimal() +
-    theme(legend.position = "none") +
+        ggplot2::scale_colour_manual(values = c(colors[2], colors[1], "grey")) +
+    ggrepel::geom_label_repel(mapping = ggplot2::aes(label = ID)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::geom_vline(xintercept = 0, linetype = 'dotted') +
+    ggplot2::geom_hline(yintercept = 0, linetype = 'dotted') +
+    ggplot2::ggtitle(pathway) +
+    
     geom_vline(xintercept = 0, linetype = 'dotted') +
     geom_hline(yintercept = 0, linetype = 'dotted') +
     ggtitle(pathway)
@@ -304,11 +319,11 @@ sample_acts <- decoupleR::run_wmean(
 # Transform to wide matrix
 sample_acts_mat <- sample_acts %>%
   filter(statistic == "norm_wmean") %>%
-  pivot_wider(
+  tidyr::pivot_wider(
     id_cols = "condition", names_from = "source",
     values_from = "score"
   ) %>%
-  column_to_rownames("condition") %>%
+  tibble::column_to_rownames("condition") %>%
   as.matrix()
 
 # Scale per sample
@@ -388,23 +403,27 @@ contrast_acts <- run_wmean(
 # Filter norm_wmean
 f_contrast_acts <- contrast_acts %>%
   filter(statistic == "norm_wmean")
+colors <- rev(RColorBrewer::brewer.pal(n = 11, name = "RdBu")[c(2, 10)])
 
 # Plot
 ggplot(f_contrast_acts, aes(x = reorder(source, score), y = score)) +
   geom_bar(aes(fill = score), stat = "identity") +
-  scale_fill_gradient2(
-    low = "darkblue", high = "indianred",
-    mid = "whitesmoke", midpoint = 0
-  ) +
-  theme_minimal() +
-  theme(
-    axis.title = element_text(face = "bold", size = 12),
-    axis.text.x =
-      element_text(angle = 45, hjust = 1, size = 10, face = "bold"),
-    axis.text.y = element_text(size = 10, face = "bold"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()
-  ) +
+        ggplot2::scale_fill_gradient2(low = colors[1], 
+                                   mid = "whitesmoke", 
+                                   high = colors[2], 
+                                   midpoint = 0) + 
+     ggplot2::theme_minimal() +
+     ggplot2::theme(axis.title = element_text(face = "bold", size = 15),
+              axis.text.x = ggplot2::element_text(angle = 45, 
+                                                  hjust = 1, 
+                                                  size = 13, 
+                                                  face = "bold"),
+              axis.text.y = ggplot2::element_text(size = 13, 
+                                                  face = "bold"),
+                legend.title = element_text(size = 15),
+                legend.text  = element_text(size = 13),
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank())+
   xlab("Pathways")
 ```
 

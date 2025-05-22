@@ -380,7 +380,11 @@ plot_enrichment <- function(GSEA_table, X, Y, pval = "pval", pval_threshold = 0.
     ggplot2::geom_segment(ggplot2::aes(x = pathway, xend = pathway, y = 0, yend = !!rlang::sym(Y))) +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none",
+                   axis.text.x =  ggplot2::element_text(size = 11, 
+                                                        face = "bold"),
+                   axis.text.y =  ggplot2::element_text(size = 11, 
+                                                        face = "bold")) 
 }
 
 #' Return the correct org_db
@@ -439,7 +443,7 @@ better_dotplot <- function(gset, c_groups = contrast_groups) {
     base_font_size <- 18
     
     # Define the scaling factor (adjust as needed)
-    scaling_factor <- 0.95
+    scaling_factor <- 0.8
     
     # Calculate the new font size
     new_font_size <- base_font_size * scaling_factor / log(num_y_entries + 1)
