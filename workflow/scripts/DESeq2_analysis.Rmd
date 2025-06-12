@@ -23,7 +23,7 @@ body {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, warning = FALSE, message = FALSE,
-  fig.width = 12, fig.height = 12
+  fig.width = 7, fig.height = 7, dpi = 300
 )
 
 library(tidyverse)
@@ -271,12 +271,13 @@ volcano_plot <- EnhancedVolcano(as.data.frame(joined_df),
   lab = joined_df$gname,
   x = "logFoldChange",
   y = "padj",
-  title = paste(contrast_groups, collapse = "_vs_"),
+  title = NULL,# paste(contrast_groups, collapse = "_vs_"),
+  subtitle = NULL,
   pCutoff = pvalue_threshold,
   ylab = bquote(~ -Log[10] ~ italic(Padj)), FCcutoff = lfc_threshold
 )
 ggsave(
-  filename = file.path(plot_path, "Volcano_plot.svg"),
+  filename = file.path(plot_path, "Volcano_plot.jpeg"),
   plot = volcano_plot
 )
 
@@ -451,7 +452,7 @@ Note:
 - for GSEA: GeneRatio denotes $\frac{Core\ enriched\ genes}{Set\ Size} *100$
 
 
-```{r msigdb, fig.width = 10,fig.height =10, results='asis'}
+```{r msigdb, fig.width = 7,fig.height =7, results='asis'}
 better_dotplot <- function(gset, c_groups = contrast_groups) {
   pos_gsea <- gset %>% dplyr::filter(NES > 0.5) %>% dplyr::arrange(desc(NES))
 
@@ -503,7 +504,7 @@ save_dotplots <- function(d_plot, p_group, p_path = plot_path, gsea_type) {
       p_path,
       glue::glue("{p_group}_{gsea_type}_dplot.svg")
     ),
-    d_plot, width = 10, height = 10
+    d_plot, width = 7, height = 7
   )
 }
 
@@ -530,7 +531,7 @@ do_gseaplots <- function(enrich_res, gsea_name) {
           contrast_groups[1], "_vs_",
           contrast_groups[2],
           "_", gsea_name, "_enrichplot.svg"
-        )), plot = enrich_plots)
+        )), plot = enrich_plots,fix_text_size = FALSE)
         print(enrich_plots)
         all_plots$enrichplots <- enrich_plots
 
@@ -555,7 +556,7 @@ do_gseaplots <- function(enrich_res, gsea_name) {
             "_vs_", contrast_groups[2], "_", gsea_name,
             "_cnet.svg"
           )),
-          cnetplot, width = 16, height = 16
+          cnetplot, width = 16, height = 16, fix_text_size = FALSE
         )
         all_plots <- cnetplot
       } else {

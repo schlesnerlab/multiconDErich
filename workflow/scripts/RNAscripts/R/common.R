@@ -150,7 +150,7 @@ save_pheatmap_svg <- function(x,
                               filename,
                               width = 7,
                               height = 7) {
-  svglite::svglite(filename, width = width, height = height)
+  svglite::svglite(filename, width = width, height = height,fix_text_size = FALSE)
   grid::grid.newpage()
   grid::grid.draw(x$gtable)
   dev.off()
@@ -169,7 +169,7 @@ save_plot_svg <- function(x,
                           filename,
                           width = 7,
                           height = 7) {
-  svglite::svglite(filename, width = width, height = height)
+  svglite::svglite(filename, width = width, height = height,fix_text_size = FALSE)
   x
   dev.off()
 }
@@ -188,7 +188,7 @@ save_cheatmap_svg <- function(x,
                               filename,
                               width = 7,
                               height = 7) {
-  svglite::svglite(filename, width = width, height = height)
+  svglite::svglite(filename, width = width, height = height,fix_text_size = FALSE)
   ComplexHeatmap::draw(x)
   dev.off()
 }
