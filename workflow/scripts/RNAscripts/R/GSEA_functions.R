@@ -381,9 +381,9 @@ plot_enrichment <- function(GSEA_table, X, Y, pval = "pval", pval_threshold = 0.
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "none",
-                   axis.text.x =  ggplot2::element_text(size = 11, 
+                   axis.text.x =  ggplot2::element_text(size = 14, 
                                                         face = "bold"),
-                   axis.text.y =  ggplot2::element_text(size = 11, 
+                   axis.text.y =  ggplot2::element_text(size = 14, 
                                                         face = "bold")) 
 }
 
