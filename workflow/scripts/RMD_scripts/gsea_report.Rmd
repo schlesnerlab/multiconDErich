@@ -3,14 +3,14 @@ title: "gsea Report"
 author: "Christian Heyer"
 date: "1 4 2022"
 output: html_document
-fig_width: 12
-fig_height: 9
+fig_width: 8
+fig_height: 8
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, warning = FALSE, message = FALSE, dev = "png",
-  fig.width = 12, fig.height = 12
+  fig.width = 8, fig.height = 8, dpi = 300
 )
 library(purrr)
 library(clusterProfiler)
@@ -101,7 +101,7 @@ GSEA:
 
 MSIG db hallmarks results
 
-```{r plot Enrichments, results='asis', fig.width=12, fig.height=12, echo = FALSE}
+```{r plot Enrichments, results='asis', fig.width=8, fig.height=8, echo = FALSE}
 build_gene_set_detail <- function(gset_res, gset_name, inkey) {
   ensembl_names <- gset_res@result[gset_name, ]$core_enrichment %>%
     stringr::str_split("/") %>%

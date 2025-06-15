@@ -110,6 +110,7 @@ rule deseq_report:
     resources:
         time_min=60,
         mem_mb=8192,
+        queue="medium-debian"
     script:
         "../scripts/DESeq2_analysis.Rmd"
 
@@ -178,6 +179,7 @@ rule cohort_wide_comparison:
     threads: 1
     resources:
         mem_mb=16384,
+        time_min=59
     script:
         "../scripts/DEseq2_cohort.Rmd"
 
@@ -303,5 +305,6 @@ rule run_progeny:
     resources:
         mem_mb=8192,
         time_min=59,
+        queue="medium-debian"
     script:
         "../scripts/RMD_scripts/progeny_analysis.Rmd"

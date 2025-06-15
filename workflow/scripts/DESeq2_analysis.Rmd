@@ -277,7 +277,7 @@ volcano_plot <- EnhancedVolcano(as.data.frame(joined_df),
   ylab = bquote(~ -Log[10] ~ italic(Padj)), FCcutoff = lfc_threshold
 )
 ggsave(
-  filename = file.path(plot_path, "Volcano_plot.jpeg"),
+  filename = file.path(plot_path, "Volcano_plot.png"),
   plot = volcano_plot
 )
 
