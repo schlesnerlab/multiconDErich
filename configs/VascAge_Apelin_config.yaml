@@ -1,0 +1,217 @@
+### Configfile for Vascular Aging RNA pipeline####
+###### 
+## PERSONAL INFORMATION ##
+# Author: Christian Heyer
+# Position: PhD Student
+# Date: 08.07.2020
+# Institution: DKFZ B240
+
+## PROJECT INFORMATION ##
+# Name of the project: Vascular Aging
+# Phabricator's project: #vascaging
+# Assigned task (optional):
+
+
+## SCRIPT INFORMATION ##
+# Title: Config Script for Snakemake rnaseq pipeline for APelin experiments
+# Description: Config file based off of https://github.com/snakemake-workflows/rna-seq-star-deseq2/
+#   Used for the Apelin Vascular Aging experiment.
+# Environments: conda env with snakemake installed
+# Dependencies: python3, snakemake=>5.1
+# Usage: use with `snakemake --configfile {this_file}
+
+######
+
+# path or URL to sample sheet (TSV format, columns: sample, condition, ...)
+samples: ./data/apelin_2020/VascAge_samples_apelin.tsv #### Sample sheet
+# path or URL to sequencing unit sheet (TSV format, columns: sample, unit, fq1, fq2, 
+# strandedness). Units are technical replicates (e.g. lanes, or resequencing of the 
+# same biological sample).If the column "strandedness" is present (which is optional), 
+# can be empty or has one of these values: none, yes or reverse. none is for unstranded 
+# protocols, yes an reverse follow the nomenclature used in `htseq-count --reverse` 
+# which is referenced in STAR manual section 7, "Counting number of reads per gene".
+gene_name_type: ENSEMBL # ENSEMBL or HGNC Or ENTREZ_ID
+organism: "Mus musculus" 
+units: ./data/apelin_2020/units_vascage_apelin.tsv ## Alignment information
+run: 'run191126_ST-K00207_0285_BHCGT7BBXY' ### Run information  this needs to be added to unit
+SEQ_TYPE: "single"
+
+### Data Dirs ###
+dirs:
+  BASE_DATA_DIR: '/omics/odcf/project/OE0228/VascularAgeing/sequencing/rna_sequencing/view-by-pid'
+  BASE_ANALYSIS_DIR: '/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/apelin_exp/'
+counts: /omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/apelin_exp/counts/all.tsv
+
+perform_perturbation: false
+
+cluster-config: "../cluster/bsub.yaml"
+
+conda-prefix: '/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/conda'
+
+trimming:
+  # skip trimming: false or true
+  skip: true
+  # the sequencing adapter
+  adapter: ACGGATCGATCGATCGATCGAT
+
+ref:
+  # the STAR indexjjj
+  index: "/icgc/ngs_share/assemblies/mm10/indexes/STAR/STAR_2.5.2b_GRCm38mm10_gencodevM12_PhiX_100bp"
+  # gtf file with transcripts
+  annotation: "/icgc/ngs_share/assemblies/mm10/databases/gencode/gencodeM12/gencode.vM12.annotation.GRCm38mm10_Phix.gtf"
+  ## kallisto
+  kallisto: "/icgc/ngs_share/assemblies/mm10/indexes/kallisto/kallisto-0.43.0_GRCm38mm10_gencodevM12_k31/kallisto-0.43.0_GRCm38mm10_GencodevM12_k31.index"
+
+DKFZ: TRUE
+pca:
+  labels:
+    # columns of sample sheet to use for PCA
+    - condition
+
+diffexp:
+  gsea_use_stat: True
+  pval_threshold: 0.05
+  LFC_threshold: 0.5
+  shrink_lfc: True
+  # contrasts for the deseq2 results method
+  contrasts:
+    condition:
+      AEC-vs-YEC:
+        - Aged-EC
+        - Young-EC
+      AECplusA-vs-AEC:
+        - Aged-EC_apelin
+        - Aged-EC
+      YECplusA-vs-YEC:
+        - Young-EC_apelin
+        - Young-EC
+      AECplusA-vs-YECplusA:
+        - Aged-EC_apelin
+        - Young-EC_apelin
+      AEC-vs-YECplusA:
+        - Aged-EC
+        - Young-EC_apelin
+      AECplusA-vs-YEC:
+        - Aged-EC_apelin
+        - Young-EC
+    apelin:
+      apelin-vs-control:
+        - apelin
+        - control
+    age:
+      aged-vs-young:
+        - aged
+        - young
+  model: "~condition"
+  custom_model:
+    age: "~apelin + age"
+    apelin: "~apelin + age"
+  filter_samples:
+    condition: False
+gsea:
+  Hallmark_gsea:
+    category: H
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Hallmark_fisher:
+    category: H
+    subcategory: NULL
+    use_gsea: False 
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C2:
+    category: C2
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C5:
+    category: C5
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C8:
+    category: C8
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C3:
+    category: C3
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Reactome_GSEA:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: Reactome
+    id_class: ENTREZID
+  EC_senesence:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: custom_senescence
+    id_class: ENSEMBL
+  MitoCarta:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: MitoCarta
+    id_class: ENSEMBL 
+      
+params:
+  star: ""
+  cutadapt-se: ""
+  cutadapt-pe: ""
+comp_groups:
+  AEC-vs-YEC:
+    - Aged-EC
+    - Young-EC
+  AECplusA-vs-AEC:
+    - Aged-EC_apelin
+    - Aged-EC
+  YECplusA-vs-YEC:
+    - Young-EC_apelin
+    - Young-EC
+  AECplusA-vs-YECplusA:
+    - Aged-EC_apelin
+    - Young-EC_apelin
+
+group_colors:
+  condition:
+    Young-EC:  "grey"
+    Young-EC_apelin: "#A2A201"
+    Aged-EC: "#A00101"
+    Aged-EC_apelin: "#01A2A2"
+  apelin:
+    apelin:  "grey"
+    control: "#A2A201"
+  age:
+    aged:  "grey"
+    young: "#A00101"
+
+do_salmon: True
+run_mitch: ["condition"]
+run_carnival:
+  cond_to_run: 
+    condition: 
+    - YECplusA-vs-YEC
+    - AECplusA-vs-AEC
+    apelin:
+      - apelin-vs-control
+  vanilla: False
+    # Apln: 1
+  inverse: False
+  sample: False  
+  joint_rep: False
+run_kallisto: False
+run_qc: True
+
+cplex_solver: "/home/heyer/software/external/CPLEX_Studio201/cplex/bin/x86-64_linux/cplex"
+
+glmmseq: False

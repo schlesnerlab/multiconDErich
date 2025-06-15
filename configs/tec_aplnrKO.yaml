@@ -1,0 +1,140 @@
+######
+
+# path or URL to sample sheet (TSV format, columns: sample, condition, ...)
+samples: "data/tumor_vs_ec/Aplnr_KO.tsv" #### Sample sheet
+gene_name_type: ENSEMBL # ENSEMBL or HGNC Or ENTREZ_ID
+organism: "Mus musculus" # Name of Organsim sequenced (Supported: Mus Musculus, Homo sapiens)
+SEQ_TYPE: "paired"
+
+### Data Dirs ###
+dirs:
+  BASE_DATA_DIR: "/omics/odcf/project/OE0228/VascularAgeing/sequencing/rna_sequencing/view-by-pid"
+  BASE_ANALYSIS_DIR: "/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/tec_aplnrKO"
+
+## Configuration
+pca:
+  labels:
+    # columns of sample sheet to use for PCA
+    - condition
+    - cre_status
+    - cell_type
+
+diffexp:
+  gsea_use_stat: True
+  pval_threshold: 0.05
+  LFC_threshold: 0.5
+  shrink_lfc:
+    False
+    # contrasts for the deseq2 results method
+  contrasts:
+    condition: # Here column in sample sheet
+      tumor_KO_vs_control: # comparison
+        - tumor_KO
+        - tumor_control
+      ec_KO_vs_control:
+        - ec_KO
+        - ec_control
+  model: "~condition"
+  custom_model:
+    cell_type: "~ cell_type + cre_status"
+    cre_status: "~ cell_type + cre_status"
+  filter_samples:
+    condition: True
+    cell_type: False
+    cre_status: False
+gsea:
+  Hallmark_gsea:
+    category: H
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Hallmark_fisher:
+    category: H
+    subcategory: NULL
+    use_gsea: False
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C2:
+    category: C2
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C5:
+    category: C5
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C8:
+    category: C8
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C3:
+    category: C3
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Reactome_GSEA:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: Reactome
+    id_class: ENTREZID
+  EC_senesence:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: custom_senescence
+    id_class: ENSEMBL
+  MitoCarta:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: MitoCarta
+    id_class: ENSEMBL
+
+## Color control
+group_colors:
+  condition:
+    tumor_KO: "#01A2A2"
+    tumor_control: "#A2A201"
+    ec_KO: "#A00101"
+    ec_control: "grey"
+  cell_type:
+    tumor: "red"
+    endo_cell: "blue"
+  cre_status:
+    KO: "yellow"
+    control: "black"
+
+# Workflow control and management
+run_mitch: False
+run_carnival:
+  cond_to_run:
+    condition:
+      - ec_KO_vs_control
+  vanilla: False
+  inverse: False
+  sample: False
+  joint_rep: False
+
+cplex_solver: "/home/heyer/software/external/CPLEX_Studio201/cplex/bin/x86-64_linux/cplex"
+
+DKFZ: True
+units: "data/tumor_vs_ec/units_aplnr_KO.tsv"
+
+excluded_genes:
+  - "ENSMUSG00000019768"
+
+ref:
+  # the STAR indexjjj
+  index: "/omics/odcf/reference_data/legacy/ngs_share/assemblies/mm10/indexes/STAR/STAR_2.5.2b_GRCm38mm10_gencodevM12_PhiX_100bp"
+  # gtf file with transcripts
+  annotation: "/omics/odcf/reference_data/legacy/ngs_share/assemblies/mm10/databases/gencode/gencodeM12/gencode.vM12.annotation.GRCm38mm10_Phix.gtf"
+
+glmmseq:

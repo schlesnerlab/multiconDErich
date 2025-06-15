@@ -1,0 +1,102 @@
+######
+
+# path or URL to sample sheet (TSV format, columns: sample, condition, ...)
+samples: "/desktop-home/heyer/projects/Vascular_Aging/Integrative_Analysis/join_RNA/full_metadata.tsv"
+counts: "/desktop-home/heyer/projects/Vascular_Aging/Integrative_Analysis/join_RNA/count.tsv"
+gene_name_type: ENSEMBL # ENSEMBL or HGNC Or ENTREZ_ID
+organism: "Mus musculus" # Name of Organsim sequenced (Supported: Mus Musculus, Homo sapiens)
+SEQ_TYPE: "paired"
+pca:
+  labels:
+    # columns of sample sheet to use for PCA
+    - experiment
+    - age
+    - EC_status
+    - Aplnr_KO
+    - Apln_treatment 
+### Data Dirs ###
+dirs:
+  BASE_DATA_DIR: '/omics/odcf/project/OE0228/VascularAgeing/sequencing/rna_sequencing/view-by-pid'
+  BASE_ANALYSIS_DIR: '/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/glmmseq'
+
+run_mitch: False
+run_carnival:
+  vanilla: False
+  inverse: False
+  sample: False  
+  joint_rep: False
+
+cplex_solver: "/home/heyer/software/external/CPLEX_Studio201/cplex/bin/x86-64_linux/cplex"
+
+DKFZ: False
+
+glmmseq:
+  batch_correct: "~as.factor(age) + as.factor(Aplnr_KO) + as.factor(Apln_treatment) + as.factor(EC_status)"
+  formula: "~age * EC_status + Apln_treatment:age + Aplnr_KO + EC_status:Aplnr_KO + Apln_treatment +  (1 | condition) + experiment"
+  enrichments: 
+    Hallmark_gsea:
+      category: H
+      subcategory: NULL
+      use_gsea: True
+      database: MSigDB
+      id_class: ENSEMBL
+    Reactome_GSEA:
+      category: C2
+      subcategory: CP:REACTOME
+      use_gsea: True
+      database: MSigDB
+      id_class: ENTREZID
+    EC_senesence:
+      category: NULL
+      subcategory: NULL
+      use_gsea: True
+      database: custom_senescence
+      id_class: ENSEMBL
+    MitoCarta:
+      category: NULL
+      subcategory: NULL
+      use_gsea: True
+      database: MitoCarta
+      id_class: ENSEMBL  
+  test_group: 
+    age: "ageaged"
+    EC_status: "EC_statustumor"
+    Aplnr_KO: "Aplnr_KOKO"
+    Apln_treatment: "Apln_treatmentup"
+    age:EC_status: "ageaged:EC_statustumor"
+    EC_status:Aplnr_KO: "EC_statustumor:Aplnr_KOKO"
+    age:Apln_treatment: "ageaged:Apln_treatmentup"
+  reference_group:
+    age: "young"
+    EC_status: "healthy"
+    Aplnr_KO: "normal"
+    Apln_treatment: "normal"
+
+
+
+diffexp:
+  gsea_use_stat: True
+  pval_threshold: 0.05
+  LFC_threshold: 0.5
+  shrink_lfc: True
+    # cont:rasts for the deseq2 results method
+  contrasts:
+    age:
+      aged_vs_young:
+        - aged
+        - young
+    EC_status:
+      tumor_vs_healthy:
+        - tumor
+        - healthy
+    Apln_treatment:
+      treated_vs_untreated:
+        - up
+        - normal
+    Aplnr_KO:
+      KO_vs_control:
+        - KO
+        - normal
+
+  model: "~age + EC_status + Apln_treatment + Aplnr_KO + experiment"
+      

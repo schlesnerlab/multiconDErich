@@ -1,0 +1,202 @@
+### Configfile for Vascular Aging RNA pipeline####
+######
+## PERSONAL INFORMATION ##
+# Author: Christian Heyer
+# Position: PhD Student
+# Date: 08.07.2020
+# Institution: DKFZ B240
+
+## PROJECT INFORMATION ##
+# Name of the project: Vascular Aging
+# Phabricator's project: #vascaging
+# Assigned task (optional):
+
+## SCRIPT INFORMATION ##
+# Title: Config Script for Snakemake rnaseq pipeline for APelin experiments
+# Description: Config file based off of https://github.com/snakemake-workflows/rna-seq-star-deseq2/
+#   Used for the Apelin Vascular Aging experiment.
+# Environments: conda env with snakemake installed
+# Dependencies: python3, snakemake=>5.1
+# Usage: use with `snakemake --configfile {this_file}
+
+######
+
+# path or URL to sample sheet (TSV format, columns: sample, condition, ...)
+samples: ./data/Vasc_age2020/Vascage_samples.tsv #### Sample sheet
+# path or URL to sequencing unit sheet (TSV format, columns: sample, unit, fq1, fq2,
+# strandedness). Units are technical replicates (e.g. lanes, or resequencing of the
+# same biological sample).If the column "strandedness" is present (which is optional),
+# can be empty or has one of these values: none, yes or reverse. none is for unstranded
+# protocols, yes an reverse follow the nomenclature used in `htseq-count --reverse`
+# which is referenced in STAR manual section 7, "Counting number of reads per gene".
+
+gene_name_type: ENSEMBL
+organism: "Mus musculus"
+units: ./data/Vasc_age2020/units_vascage.tsv ## Alignment information
+run: "run200430_ST-K00265_0325_AHFMK2BBXY" ### Run information  this needs to be added to unit
+SEQ_TYPE: "single"
+
+### Data Dirs ###
+dirs:
+  BASE_DATA_DIR: "/omics/odcf/project/OE0228/VascularAgeing/sequencing/rna_sequencing/view-by-pid/"
+  BASE_ANALYSIS_DIR: "/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/Vasc_age2020/"
+
+perform_perturbation: False
+
+cluster-config: "../cluster/bsub.yaml"
+
+conda-prefix: "/omics/odcf/analysis/OE0228_projects/VascularAging/rna_sequencing/conda"
+
+trimming:
+  # skip trimming: false or true
+  skip: false
+  # the sequencing adapter
+  adapter: ACGGATCGATCGATCGATCGAT
+
+ref:
+  # the STAR indexjjj
+  index: "/icgc/ngs_share/assemblies/mm10/indexes/STAR/STAR_2.5.2b_GRCm38mm10_gencodevM12_PhiX_100bp" # gtf file with transcripts
+  annotation: "/icgc/ngs_share/assemblies/mm10/databases/gencode/gencodeM12/gencode.vM12.annotation.GRCm38mm10_Phix.gtf"
+
+pca:
+  labels:
+    # columns of sample sheet to use for PCA
+    - condition
+
+diffexp:
+  gsea_use_stat: True
+  pval_threshold: 0.05
+  LFC_threshold: 0.5
+  shrink_lfc: True
+  # contrasts for the deseq2 results method
+  contrasts:
+    condition:
+      d15lung_vs_d0lung:
+        - d15-lung
+        - d0-lung
+      d15lung_vs_d22lung:
+        - d15-lung
+        - d22-lung
+      m18lung_vs_d0lung:
+        - 18m-lung
+        - d0-lung
+      d15lung_vs_d36lung:
+        - d15-lung
+        - d36-lung
+      d36lung_vs_d0lung:
+        - d36-lung
+        - d0-lung
+      d36lung_vs_18mlung:
+        - d36-lung
+        - 18m-lung
+      d22lung_vs_d0lung:
+        - d22-lung
+        - d0-lung
+      d22lung_vs_d36lung:
+        - d22-lung
+        - d36-lung
+      d15lung_vs_m18lung:
+        - d15-lung
+        - 18m-lung
+  model: "~condition"
+  filter_samples:
+    condition: False
+
+gsea:
+  Hallmark_gsea:
+    category: H
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Hallmark_fisher:
+    category: H
+    subcategory: NULL
+    use_gsea: False
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C2:
+    category: C2
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C5:
+    category: C5
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C8:
+    category: C8
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  MsigDB_C3:
+    category: C3
+    subcategory: NULL
+    use_gsea: True
+    database: MSigDB
+    id_class: ENSEMBL
+  Reactome_GSEA:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: Reactome
+    id_class: ENTREZID
+  EC_senesence:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: custom_senescence
+    id_class: ENSEMBL
+  MitoCarta:
+    category: NULL
+    subcategory: NULL
+    use_gsea: True
+    database: MitoCarta
+    id_class: ENSEMBL
+comp_groups:
+  condition:
+    d15lung_vs_d0lung:
+      - d15-lung
+      - d0-lung
+    d22lung_vs_d0lung:
+      - d22-lung
+      - d0-lung
+    d36lung_vs_d0lung:
+      - d36-lung
+      - d0-lung
+    m18lung_vs_d0lung:
+      - 18m-lung
+      - d0-lung
+
+params:
+  star: ""
+  cutadapt-se: ""
+  cutadapt-pe: ""
+
+group_colors:
+  condition:
+    d0-lung: "grey"
+    d15-lung: "#A2A201"
+    d22-lung: "#01A2A2"
+    d36-lung: "#0101A2"
+    18m-lung: "#A00101"
+
+do_salmon: False
+run_mitch: ["condition"]
+run_carnival:
+  vanilla: False
+  inverse: False
+  sample: False
+  joint_rep: False
+run_kallisto: False
+run_qc: True
+
+cplex_solver: "/home/heyer/software/external/CPLEX_Studio201/cplex/bin/x86-64_linux/cplex"
+
+DKFZ: True
+
+glmmseq:
